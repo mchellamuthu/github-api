@@ -10,20 +10,11 @@ use Laravel\Socialite\Facades\Socialite;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::group(['middleware'=>'auth'],function(){
 
-Route::get('/dashboard', function () {
-    // $githubUser = Socialite::driver('github')->user();
-    $client = new \GuzzleHttp\Client();
-    $options = [
-        'Authorization'=>'token '.auth()->user()->github_token,
-        'Accept'=>'application/vnd.github+json"'
-    ];
-    $response = $client->request('GET', 'https://api.github.com/repos/mchellamuthu/dexterapi/issues',$options);
-    $response = json_decode($response->getBody()->getContents());
-
-    dd($response);
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+    Route::get('/dashboard',[\App\Http\Controllers\HomeController::class,'index'])->name('dashboard');
+    Route::get('/issues/{repo}',[\App\Http\Controllers\HomeController::class,'getIssues'])->name('issues');
+});
 
 
 
