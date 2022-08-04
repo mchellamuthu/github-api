@@ -2,15 +2,40 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\User;
 use App\Models\Issue;
 use Livewire\Component;
+use Livewire\WithPagination;
+use Illuminate\Support\Facades\Auth;
+
 
 class Issues extends Component
 {
+    use WithPagination;
+
     public $issues, $title, $description, $status, $issue_id, $github_issue_id, $repo_name;
     public $isOpen = false;
+    public function mount($repo)
+    {
+        $this->repo_name = $repo;
+        $auth_user = Auth::user();
+        $user = User::find($auth_user->id);
+        $githubClient = new \App\Support\Github($user);
+        $issues = $githubClient->getIssues($this->repo_name);
+        foreach ($issues as $issue) {
+            Issue::updateOrCreate(['github_issue_id' => $issue->id,'repo_name' => $this->repo_name], [
+                'title' => $issue->title,
+                'description' => $issue->body,
+                'status' => $issue->state,
+
+            ]);
+        }
+    }
     public function render()
     {
+
+        $this->issues = Issue::where('repo_name',$this->repo_name)->get();
+
         return view('livewire.issues');
     }
     public function create()
@@ -41,8 +66,6 @@ class Issues extends Component
             'title' => 'required',
             'description' => 'required',
             'status' => 'required|in:open,closed',
-            'github_issue_id' => 'required',
-            'repo_name' => 'required',
         ]);
         if (!empty($this->issue_id)) {
             $issue = Issue::find($this->issue_id);
@@ -62,21 +85,21 @@ class Issues extends Component
                     'Issue was unchanged and saved successfully.'
                 );
             }
-        }else{
+        } else {
 
+            $issue =  Issue::create([
+                'title' => $this->title,
+                'description' => $this->description,
+                'status' => $this->status,
+                'repo_name' => $this->repo_name,
+            ]);
+
+
+            session()->flash(
+                'message',
+                'Issue was created successfully.'
+            );
         }
-        Issue::create([
-            'title' => $this->title,
-            'description' => $this->description,
-            'status' => $this->status,
-            'github_issue_id' => $this->github_issue_id,
-            'repo_name' => $this->repo_name,
-        ]);
-
-        session()->flash(
-            'message',
-            $this->post_id ? 'Post Updated Successfully.' : 'Post Created Successfully.'
-        );
 
         $this->closeModal();
         $this->resetInputFields();
@@ -88,6 +111,7 @@ class Issues extends Component
         $this->issue_id = $id;
         $this->title = $issue->title;
         $this->description = $issue->description;
+        $this->github_issue_id = $issue->github_issue_id;
         $this->status = $issue->status;
         $this->openModal();
     }

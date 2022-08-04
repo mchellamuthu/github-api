@@ -15,11 +15,10 @@ return new class extends Migration
     {
         Schema::create('issues', function (Blueprint $table) {
             $table->id();
-            $table->string('github_issue_id')->nullable;
+            $table->string('github_issue_id')->nullable();
             $table->string('title')->nullable();
             $table->string('description')->nullable();
             $table->string('repo_name');
-            $table->string('assignees')->nullable();
             $table->enum('status', ['open', 'closed'])->default('open');
             $table->timestamps();
         });

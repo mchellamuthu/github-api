@@ -22,7 +22,7 @@ class HomeController extends Controller
         $auth_user = Auth::user();
         $user = User::find($auth_user->id);
         $githubClient = new \App\Support\Github($user);
-        $issues = $githubClient->getIssues($repo);
+        $issues = $githubClient->createIssue($repo,['title'=>'new issue from testing','body'=>'issue']);
         dd($issues);
         // return view('dashboard',compact('repos'));
     }

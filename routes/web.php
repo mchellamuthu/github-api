@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Http\Livewire\Issues;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
@@ -10,10 +11,11 @@ use Laravel\Socialite\Facades\Socialite;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::group(['middleware'=>'auth'],function(){
+Route::group(['middleware' => 'auth'], function () {
 
-    Route::get('/dashboard',[\App\Http\Controllers\HomeController::class,'index'])->name('dashboard');
-    Route::get('/issues/{repo}',[\App\Http\Controllers\HomeController::class,'getIssues'])->name('issues');
+    Route::get('/dashboard', [\App\Http\Controllers\HomeController::class, 'index'])->name('dashboard');
+    // Route::get('/issues/{repo}', Issues::class)->name('issues');
+    Route::get('/issues/{repo}',  [\App\Http\Controllers\HomeController::class, 'getIssues'])->name('issues');
 });
 
 
@@ -24,17 +26,22 @@ Route::get('/auth/redirect', function () {
 
 Route::get('/auth/callback', function () {
     $githubUser = Socialite::driver('github')->user();
+
     // dd($githubUser);
     $user = User::updateOrCreate([
         'github_id' => $githubUser->id,
     ], [
         'name' => empty($githubUser->name) ? $githubUser->nickname : $githubUser->name,
+        'github_nickname' => $githubUser->nickname,
         'email' => $githubUser->email,
         'github_token' => $githubUser->token,
         'github_refresh_token' => $githubUser->refreshToken,
     ]);
     Auth::login($user);
     return redirect('/dashboard');
-// $user->token
 });
+
+Route::githubWebhooks('github-webhooks');
+
+
 require __DIR__ . '/auth.php';
