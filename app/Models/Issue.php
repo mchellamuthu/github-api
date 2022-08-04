@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Issue extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['github_issue_id', 'title', 'description', 'status', 'repo_name','assignees'];
 }
