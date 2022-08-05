@@ -17,7 +17,7 @@ class Issues extends Component
 
     public $title, $description, $status, $issue_id, $github_issue_id, $repo_name;
 
-    protected $listeners = ['edit','store','delete'];
+    protected $listeners = ['edit', 'store', 'delete','refresh-me'=>'$refresh'];
     public  $issues;
     public $isOpen = false;
 
@@ -28,8 +28,8 @@ class Issues extends Component
         $user = User::find($auth_user->id);
         $this->user = $user;
         $this->repo_name = $repo;
-
-        $repo_issues =  Issue::where('repo_name', $this->repo_name)->count();
+        $this->issues = $this->getIssues();
+        $repo_issues =  count($this->issues);
         if ($repo_issues  == 0) {
             $githubClient = new Github($user);
             $issues = $githubClient->getIssues($this->repo_name);
@@ -43,10 +43,15 @@ class Issues extends Component
             }
         }
     }
+
+    public function getIssues()
+    {
+        $issues = Issue::where('repo_name', $this->repo_name)->orderBy('created_at', 'desc')->get();
+        return $issues;
+    }
     public function render()
     {
 
-        $this->issues = Issue::where('repo_name', $this->repo_name)->orderBy('created_at','desc')->get();
 
         return view('livewire.issues');
     }
@@ -82,23 +87,20 @@ class Issues extends Component
         ]);
         if (!empty($this->issue_id)) {
             $issue = Issue::find($this->issue_id);
-
             $github = new Github($this->user);
             $response =  $github->updateIssue($this->repo_name, [
                 'title' => $this->title,
                 'body' => $this->description,
                 'state' => $this->status
             ], $issue->github_issue_id);
-            // dd($response);
-            $this->emit('refreshComponent');
 
+
+            $this->getIssues();
             session()->flash(
                 'message',
                 'Issue Updated Successfully.'
             );
         } else {
-
-
 
             try {
                 $github = new Github($this->user);
@@ -134,6 +136,5 @@ class Issues extends Component
     public function delete($id)
     {
         $issue = Issue::findOrFail($id);
-
     }
 }
