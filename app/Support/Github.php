@@ -27,12 +27,13 @@ class Github
     }
     public function getIssues($repoId)
     {
-        $client = new \GuzzleHttp\Client();
-        $options = [
+        $uri  = 'https://api.github.com/repos/' . $this->user->name . '/' . $repoId . '/issues';
+
+        $headers = [
             'Authorization' => 'token ' . auth()->user()->github_token,
             'Accept' => 'application/vnd.github+json"'
         ];
-        $response = $client->request('GET', 'https://api.github.com/repos/' . $this->user->name . '/' . $repoId . '/issues', $options);
+        $response = Http::withHeaders($headers)->get($uri);
         $response = json_decode($response->getBody()->getContents());
         return $response;
     }
@@ -40,19 +41,29 @@ class Github
     {
         $uri = 'https://api.github.com/repos/' . $this->user->github_nickname . '/' . $repoId . '/issues';
 
-        // dd($uri);
         $headers = [
             'Authorization' => 'token ' . auth()->user()->github_token,
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
         ];
-        // dump($uri);
-        // dd($headers);
-        // $client = new \GuzzleHttp\Client();
-        // $client->request($uri, json_encode($data));
+
         $response = Http::withHeaders($headers)->post($uri, $data);
 
-        // dd($response);
+        $response = json_decode($response->getBody()->getContents());
+        return $response;
+    }
+    public function updateIssue($repoId, $data = array(), $issue_id)
+    {
+        $uri = 'https://api.github.com/repos/' . $this->user->github_nickname . '/' . $repoId . '/issues/' . $issue_id;
+        // dump($uri);
+        $headers = [
+            'Authorization' => 'token ' . auth()->user()->github_token,
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ];
+
+        $response = Http::withHeaders($headers)->patch($uri, $data);
+
         $response = json_decode($response->getBody()->getContents());
         return $response;
     }

@@ -14,8 +14,8 @@ Route::get('/', function () {
 Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/dashboard', [\App\Http\Controllers\HomeController::class, 'index'])->name('dashboard');
-    // Route::get('/issues/{repo}', Issues::class)->name('issues');
-    Route::get('/issues/{repo}',  [\App\Http\Controllers\HomeController::class, 'getIssues'])->name('issues');
+    Route::get('/issues/{repo}', Issues::class)->name('issues');
+    // Route::get('/issues/{repo}',  [\App\Http\Controllers\HomeController::class, 'getIssues'])->name('issues');
 });
 
 
