@@ -13,8 +13,8 @@
                 </th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 bg-white">
-            @foreach ($issues as $issue)
+        <tbody class="divide-y divide-gray-200 bg-white" >
+            @foreach ($data as $issue)
                 <tr>
                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                         {{ $issue->title }}</td>
@@ -27,7 +27,7 @@
                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button wire:click="edit({{ $issue->id }})"
                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded">Edit</button>
-                        <button wire:click="delete({{ $issue->id }})"
+                        <button onclick="confirm('Are you sure you want to delete this issue?')" wire:click="delete({{ $issue->id }})"
                             class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete</button>
                     </td>
                 </tr>

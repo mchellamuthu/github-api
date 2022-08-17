@@ -22,10 +22,11 @@ class IssueTable extends Component
     //         "isue-{$this->repo_name}" => '$refresh',
     //     ]);
     // }
+
     public function render()
     {
 
-        return view('livewire.issue-table');
+        return view('livewire.issue-table',['data'=>$this->issues]);
     }
 
     public function edit($id)

@@ -74,7 +74,7 @@ class ProcessGithubWebhooksJob implements ShouldQueue
         /**
          *  Issue was deleted event
          */
-        if ($action == 'issues.deleted') {
+        if ($action == 'issues.locked') {
             $issue = $payload['issue'];
             $repository = $payload['repository'];
             Issue::where('github_issue_id', $issue['number'])->where('repo_name', $repository['name'])->delete();

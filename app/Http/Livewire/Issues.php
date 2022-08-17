@@ -94,8 +94,8 @@ class Issues extends Component
                 'state' => $this->status
             ], $issue->github_issue_id);
 
+            $this->emit('refresh-me');
 
-            $this->getIssues();
             session()->flash(
                 'message',
                 'Issue Updated Successfully.'
@@ -108,7 +108,7 @@ class Issues extends Component
                     'title' => $this->title,
                     'body' => $this->description
                 ]);
-                $this->emit('refreshComponent');
+                $this->emit('refresh-me');
 
                 session()->flash(
                     'message',
@@ -136,5 +136,20 @@ class Issues extends Component
     public function delete($id)
     {
         $issue = Issue::findOrFail($id);
+        try {
+            $github = new Github($this->user);
+            $response =  $github->deleteIssue($this->repo_name, $issue->github_issue_id);
+            $this->emit('refresh-me');
+
+            session()->flash(
+                'message',
+                'Issue was deleted successfully.'
+            );
+
+        } catch (Exception $e) {
+            session()->flash('error', $e->getMessage());
+        }
+
+
     }
 }

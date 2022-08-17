@@ -66,5 +66,22 @@ class Github
 
         $response = json_decode($response->getBody()->getContents());
         return $response;
+
+
+    }
+    public function deleteIssue($repoId, $issue_id)
+    {
+        $uri = 'https://api.github.com/repos/' . $this->user->github_nickname . '/' . $repoId . '/issues/' . $issue_id . '/lock';
+        // dump($uri);
+        $headers = [
+            'Authorization' => 'token ' . auth()->user()->github_token,
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ];
+
+        $response = Http::withHeaders($headers)->put($uri, ['lock_reason' => 'spam']);
+
+        $response = json_decode($response->getBody()->getContents());
+        return $response;
     }
 }
